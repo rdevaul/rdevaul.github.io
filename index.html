@@ -1,50 +1,251 @@
 <!DOCTYPE html>
-<html>
-  <!-- verification for fediverse/Mastodon, H/T to simonw: https://til.simonwillison.net/mastodon/verifying-github-on-mastodon -->
-  <head>
-    <meta charset="utf-8" />
-    <title>Richard W. DeVaul selected whitepapers</title>
-    <link href="https://github.com/rdevaul" rel="me" />
-    <link href="https://sfba.social/@rdevaul" rel="me" />
-  </head>
-  <body style="margin: 2px; padding: 2px; font-family:verdana">
-    <h1>Selected Crypto Whitepapers, by Richard W. DeVaul</h1>
-    <p>Being a collection of whitepapers on crypto-related topics,
-      including large-scale decarbonization, UBI, and decentralized telecommunications.</p>
-    <h2>Project CARBON</h2>
-    <p>Aligning incentives to drive planet-scale
-      carbon sequestration through cryptocurrency and transparent
-      governance.
-      <ul>
-	<li> <a href="./Project_CARBON.pdf">Project CARBON pdf</a> </li>
-	<li> <a href="./Project_CARBON.odt">Project CARBON odt</a> </li>
-	<li> <a href="./Project_CARBON.epub">Project CARBON epub</a></li>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Richard W. DeVaul — Research & Projects</title>
+  <link href="https://github.com/rdevaul" rel="me">
+  <link href="https://sfba.social/@rdevaul" rel="me">
+  <link rel="alternate" type="application/rss+xml" title="GLaDOS Daily Briefing" href="https://glados-daily-update.s3.us-west-2.amazonaws.com/feed.xml">
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --surface: #ffffff;
+      --text: #1a1a2e;
+      --text-secondary: #555;
+      --accent: #0f3460;
+      --accent-light: #e8eef6;
+      --highlight: #e94560;
+      --purple: #533483;
+      --border: #e0e4e8;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+      line-height: 1.65; color: var(--text); background: var(--bg);
+    }
+    .header {
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+      color: white; padding: 60px 24px 48px;
+    }
+    .header-inner { max-width: 900px; margin: 0 auto; }
+    .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .header .subtitle { font-size: 1.1rem; color: rgba(255,255,255,0.75); margin-bottom: 20px; }
+    .header-links { display: flex; gap: 16px; flex-wrap: wrap; }
+    .header-links a {
+      color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem;
+      padding: 6px 14px; border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px; transition: all 0.2s;
+    }
+    .header-links a:hover { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.5); }
+    .nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .nav-inner { max-width: 900px; margin: 0 auto; display: flex; gap: 4px; padding: 0 24px; overflow-x: auto; }
+    .nav a {
+      color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+      padding: 14px 16px; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .content { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    section { padding-top: 48px; }
+    h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 8px; letter-spacing: -0.3px; }
+    .section-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 28px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .card .tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px;
+    }
+    .tag-security { background: #fde8ec; color: #c0392b; }
+    .tag-research { background: #e8eef6; color: var(--accent); }
+    .tag-tool { background: #ede8f6; color: var(--purple); }
+    .tag-podcast { background: #e8f5e9; color: #2e7d32; }
+    .tag-infra { background: #fff3e0; color: #e65100; }
+    .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+    .card h3 a { color: inherit; text-decoration: none; }
+    .card h3 a:hover { color: var(--accent); }
+    .card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 12px; }
+    .card-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card-links a { font-size: 0.8rem; color: var(--accent); text-decoration: none; font-weight: 500; }
+    .card-links a:hover { text-decoration: underline; }
+    .podcast-banner {
+      background: linear-gradient(135deg, #16213e, #533483); border-radius: var(--radius);
+      padding: 32px; color: white; margin-top: 20px; display: flex; gap: 24px;
+      align-items: center; flex-wrap: wrap;
+    }
+    .podcast-banner .podcast-info { flex: 1; min-width: 240px; }
+    .podcast-banner h3 { font-size: 1.3rem; margin-bottom: 6px; }
+    .podcast-banner p { color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5; }
+    .podcast-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .podcast-links a {
+      color: white; text-decoration: none; font-size: 0.85rem; padding: 8px 18px;
+      border-radius: 20px; font-weight: 500; transition: all 0.2s;
+    }
+    .podcast-links a.spotify { background: #1DB954; }
+    .podcast-links a.rss { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); }
+    .podcast-links a:hover { opacity: 0.85; transform: scale(1.03); }
+    .report-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px 24px; margin-top: 12px; display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .report-item h3 { font-size: 1rem; margin-bottom: 4px; }
+    .report-item .date { font-size: 0.8rem; color: var(--text-secondary); }
+    .report-item .formats { display: flex; gap: 10px; }
+    .report-item .formats a {
+      font-size: 0.8rem; padding: 4px 12px; border: 1px solid var(--border);
+      border-radius: 4px; color: var(--accent); text-decoration: none; font-weight: 500;
+    }
+    .report-item .formats a:hover { background: var(--accent-light); }
+    .about-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; margin-top: 20px;
+    }
+    .about-section p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 12px; line-height: 1.6; }
+    .about-section a { color: var(--accent); }
+    .archive-list { list-style: none; margin-top: 16px; }
+    .archive-list li { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .archive-list li:last-child { border: none; }
+    .archive-list a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .archive-list a:hover { text-decoration: underline; }
+    .archive-list .desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 24px; text-align: center; font-size: 0.8rem; color: var(--text-secondary);
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 600px) {
+      .header { padding: 40px 16px 32px; }
+      .header h1 { font-size: 1.6rem; }
+      .podcast-banner { padding: 24px; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <h1>Richard W. DeVaul</h1>
+      <div class="subtitle">Moonshot Engineer · AI/Agent Systems · Space & Propulsion · Mad Scientist</div>
+      <div class="header-links">
+        <a href="https://github.com/rdevaul">GitHub</a>
+        <a href="https://x.com/rdevaul">X / Twitter</a>
+        <a href="https://sfba.social/@rdevaul">Mastodon</a>
+        <a href="./Richard_W_DeVaul_CV.pdf">CV (PDF)</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-inner">
+      <a href="#projects">Projects</a>
+      <a href="#podcast">Podcast</a>
+      <a href="#research">Research</a>
+      <a href="#about">About</a>
+      <a href="#archive">Archive</a>
+    </div>
+  </div>
+  <div class="content">
+    <section id="projects">
+      <h2>Projects</h2>
+      <p class="section-subtitle">Open-source tools and research in AI safety, agentic systems, and beyond.</p>
+      <div class="card-grid">
+        <div class="card">
+          <span class="tag tag-security">AI Safety</span>
+          <h3><a href="https://github.com/rdevaul/prompt-lint">prompt-lint</a></h3>
+          <p>Lightweight, dependency-free prompt injection detection for AI agent pipelines. Rule-based pattern matching + statistical n-gram scoring. Detects instruction override, role hijack, exfiltration, tool abuse, and cross-document fragmented injection.</p>
+          <div class="card-links">
+            <a href="https://github.com/rdevaul/prompt-lint">GitHub &rarr;</a>
+            <a href="https://github.com/rdevaul/prompt-lint/blob/main/POSITION.md">Position Paper &rarr;</a>
+          </div>
+        </div>
+        <div class="card">
+          <span class="tag tag-security">AI Safety</span>
+          <h3><a href="https://github.com/rdevaul/skill-signer">skill-signer</a></h3>
+          <p>Cryptographic signing and verification for AI agent skills. SSH Ed25519 signatures, MANIFEST.sig.json integrity chains, and allowlist-based execution control. Built for the OpenClaw/ClawHub ecosystem.</p>
+          <div class="card-links">
+            <a href="https://github.com/rdevaul/skill-signer">GitHub &rarr;</a>
+          </div>
+        </div>
+        <div class="card">
+          <span class="tag tag-tool">CAD/CAM</span>
+          <h3><a href="https://github.com/rdevaul/yapCAD">yapCAD</a></h3>
+          <p>Open-source agentic CAD/CAM tool &mdash; &ldquo;yet another procedural CAD.&rdquo; Computational geometry with an intelligence-as-capital approach where skills compound over time rather than consuming tokens repeatedly.</p>
+          <div class="card-links">
+            <a href="https://github.com/rdevaul/yapCAD">GitHub &rarr;</a>
+          </div>
+        </div>
+        <div class="card">
+          <span class="tag tag-infra">Agent Infrastructure</span>
+          <h3>GLaDOS</h3>
+          <p>A personal AI agent built on OpenClaw &mdash; multi-modal, multi-channel assistant with voice interface, automated research briefings, household multi-agent architecture, and proactive monitoring. The system behind the podcast below.</p>
+          <div class="card-links">
+            <a href="https://docs.openclaw.ai">OpenClaw Docs &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="podcast">
+      <h2>Podcast</h2>
+      <p class="section-subtitle">AI-generated daily briefings on technology, AI, and space.</p>
+      <div class="podcast-banner">
+        <div class="podcast-info">
+          <h3>&#127908; GLaDOS Daily Briefing</h3>
+          <p>A daily AI-produced tech briefing covering AI/ML, space &amp; aerospace, agent frameworks, and emerging technology. Two episodes daily: a morning tech roundup and an agent platform deep-dive. Researched, fact-checked, and narrated by AI &mdash; because the future should brief itself.</p>
+          <div class="podcast-links">
+            <a class="spotify" href="https://open.spotify.com/show/63nLN0dFvwF72LLZmn5d6y">&#9654; Spotify</a>
+            <a class="rss" href="https://glados-daily-update.s3.us-west-2.amazonaws.com/feed.xml">&#128225; RSS Feed</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="research">
+      <h2>Research Reports</h2>
+      <p class="section-subtitle">In-depth analysis on emerging technology trends. Updated regularly.</p>
+      <div class="report-item">
+        <div>
+          <h3>Zero Human Companies &amp; AI-Driven Autonomous Businesses</h3>
+          <div class="date">First published March 3, 2026 &middot; Updated weekly</div>
+        </div>
+        <div class="formats">
+          <a href="./research/zero-human-companies.html">Read</a>
+          <a href="./research/zero-human-companies.pdf">PDF</a>
+        </div>
+      </div>
+    </section>
+    <section id="about">
+      <h2>About</h2>
+      <div class="about-section">
+        <p><strong>Richard W. DeVaul, Ph.D.</strong> is a moonshot engineer at <a href="https://www.relativityspace.com">Dark Matter Lab (Relativity Space)</a> in Long Beach, CA, working on space launch, propulsion, and advanced manufacturing.</p>
+        <p>Previously: co-founder of XNET Mobile (decentralized 4G/5G telecommunications); led innovation and rapid-prototyping teams at Google X and Apple; Ph.D. from the MIT Media Lab in machine learning, wearables, and context-aware human-computer interaction.</p>
+        <p>Current interests include hybrid propulsion systems, resonant wireless power transfer, agentic engineering (yapCAD), and building AI assistant infrastructure that&rsquo;s actually useful &mdash; with a focus on safety, cryptographic trust, and practical multi-agent architectures.</p>
+        <p>&#128231; Reach out via <a href="https://github.com/rdevaul">GitHub</a> or <a href="https://x.com/rdevaul">X/Twitter</a>.</p>
+      </div>
+    </section>
+    <section id="archive">
+      <h2>Archive</h2>
+      <p class="section-subtitle">Earlier whitepapers and publications.</p>
+      <ul class="archive-list">
+        <li>
+          <a href="./archive/Project_CARBON.pdf">Project CARBON</a>
+          <div class="desc">Aligning incentives to drive planet-scale carbon sequestration through cryptocurrency and transparent governance. <a href="./archive/Project_CARBON.epub">[epub]</a></div>
+        </li>
+        <li>
+          <a href="./archive/Introducing_the_LUD.pdf">LUD: Local UBI Dollar</a>
+          <div class="desc">A locally-issued currency leveraging tax credits to achieve universal basic income without additional dollar-denominated taxation. <a href="./archive/Introducing_the_LUD.epub">[epub]</a></div>
+        </li>
+        <li>
+          <a href="https://www.xnet.company/files/Whitepaper.pdf">XNET Whitepaper</a>
+          <div class="desc">A blockchain-powered true 4G/5G mobile network. See also: <a href="https://www.xnet.company/files/Governance.pdf">Governance</a> &middot; <a href="https://www.xnet.company/files/Sustainability.pdf">Sustainability</a></div>
+        </li>
       </ul>
-    </p>
-    <h2>LUD: Local UBI Dollar</h2>
-    <p>The LUD is a locally-issued currency that leverages tax credits
-      to achieve universal basic income without additional
-      dollar-denominated taxation.
-      <ul>
-	<li> <a href="./Introducing_the_LUD.pdf">Introducing the LUD pdf</a> </li>
-	<li> <a href="./Introducing_the_LUD.odt">Introducing the LUD odt</a> </li>
-	<li> <a href="./Introducing_the_LUD.epub">Introducing the LUD epub</a></li>
-      </ul>
-    </p>
-    <h2>XNET Whitepaper, Governance, and Sustainability</h2>
-    <p> A blockchain-powered true 4G/5G mobile network &mdash;
-      the <a href="https://www.xnet.company/files/Whitepaper.pdf">XNET
-	Whitepaper (pdf)</a>,
-      the <a href="https://www.xnet.company/files/Governance.pdf">XNET
-	Governance paper (pdf)</a>, and
-      the <a href="https://www.xnet.company/files/Sustainability.pdf">XNET
-	Sustainability paper (pdf)</a>.
-    </p>
-    <h1>Rich's Github</h1>
-    <p>For other projects and source code, see
-      <a href="https://github.com/rdevaul">Rich's Github</a>
-    </p>
-<h1>Rich's CV</h1>
-<p> <a href="./Richard_W_DeVaul_CV.pdf">Rich's CV</a>, current as of Q2 2023 </p>
-  </body>
+    </section>
+  </div>
+  <div class="footer">
+    <p>&copy; 2026 Richard W. DeVaul &middot; <a href="https://github.com/rdevaul">GitHub</a> &middot; <a href="./archive/whitepapers.html">Legacy site</a></p>
+  </div>
+</body>
 </html>
