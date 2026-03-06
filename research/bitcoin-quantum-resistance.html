@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bitcoin &amp; Quantum Resistance — March 2026</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="report-style.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Bitcoin &amp; Quantum Resistance — March 2026</h1>
+</header>
+<h1 id="bitcoin-quantum-resistance-state-of-the-field">Bitcoin &amp;
+Quantum Resistance: State of the Field</h1>
+<h2 id="a-technical-assessment-march-2026">A Technical Assessment —
+March 2026</h2>
+<p><em>Research report by Richard DeVaul &amp; GLaDOS</em> <em>First
+published: March 5, 2026</em> <em>Last updated: March 5, 2026</em></p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>Quantum computing poses a real but non-imminent threat to Bitcoin’s
+cryptographic foundations. The primary vulnerability is ECDSA
+(transaction signatures), not SHA-256 (mining). No cryptographically
+relevant quantum computer (CRQC) exists today, and expert consensus
+places the earliest plausible timeline at 2030–2035. However, given
+Bitcoin’s multi-year upgrade cycles, the community must begin serious
+protocol work now. BIP 360 (“QuBit”) is the most concrete proposal to
+date, merged into the BIP repository in February 2026. The politics are
+contentious — particularly around what to do with ~6.5 million BTC in
+quantum-vulnerable addresses, including Satoshi’s estimated 1.1 million
+BTC.</p>
+<hr />
+<h2 id="the-quantum-threat-to-bitcoin-what-is-actually-at-risk">1. The
+Quantum Threat to Bitcoin — What Is Actually at Risk</h2>
+<p>Bitcoin’s cryptographic security rests on two distinct pillars, each
+facing a different quantum threat profile: <strong>elliptic curve
+digital signature algorithm (ECDSA)</strong> used for transaction
+authorization, and <strong>SHA-256</strong> used in proof-of-work mining
+and Merkle tree construction.</p>
+<h3 id="ecdsa-and-shors-algorithm">1.1 ECDSA and Shor’s Algorithm</h3>
+<p>Bitcoin’s ECDSA uses the secp256k1 curve, relying on the
+intractability of the elliptic curve discrete logarithm problem (ECDLP).
+A sufficiently powerful quantum computer running <strong>Shor’s
+algorithm</strong> can solve ECDLP in polynomial time — essentially
+deriving a private key from a public key. This is the existential
+threat.</p>
+<p>The attack surface has two tiers:</p>
+<p><strong>Exposed public keys (offline attack):</strong> Any address
+from which Bitcoin has been <em>sent</em> reveals its public key in the
+spending transaction. This includes all legacy P2PK (Pay-to-Public-Key)
+addresses — notably the Satoshi-era coinbase outputs — plus any reused
+P2PKH or Bech32 address. The Human Rights Foundation estimated in a 2025
+report that approximately <strong>6.51 million BTC</strong> sits in
+quantum-vulnerable addresses; of that, ~1.72 million BTC (including
+Satoshi Nakamoto’s estimated 1.1 million BTC) is in unmoved, likely-lost
+coins with permanently exposed public keys.</p>
+<p><strong>In-flight transactions (online attack):</strong> During the
+brief window between broadcast and confirmation, an ECDSA signature is
+visible in the mempool. An attacker with a fast enough quantum computer
+could, in theory, derive the private key in that window and submit a
+competing double-spend. This requires quantum computation within the
+~10-minute block interval — a much higher bar than the offline attack on
+dormant exposed keys.</p>
+<p><strong>Scale required:</strong> Breaking secp256k1 with Shor’s
+algorithm requires an estimated <strong>2,330 logical qubits</strong>
+for the core computation. But error correction overhead is severe:
+estimates range from <strong>900,000 to several million physical
+qubits</strong> depending on qubit fidelity and the error-correction
+code used. A 2025 Google paper revised earlier estimates to ~900,000
+physical qubits. A 2026 preprint (“The Pinnacle Architecture”) suggested
+optimized architectures might reduce this below 100,000 physical qubits
+— though this remains unverified and is likely optimistic.</p>
+<h3 id="sha-256-and-grovers-algorithm">1.2 SHA-256 and Grover’s
+Algorithm</h3>
+<p><strong>Grover’s algorithm</strong> provides a quadratic speedup for
+unstructured search, reducing SHA-256’s effective security from 256 bits
+to 128 bits. This affects proof-of-work mining: a quantum miner could
+find hashes roughly twice as fast as a classical miner of equivalent
+cost. This is a <em>competitive</em> advantage, not an existential
+break. Bitcoin’s difficulty adjustment would compensate. The consensus
+among cryptographers is that SHA-256 remains quantum-safe for practical
+purposes — doubling key/hash lengths (a soft upgrade) would fully
+restore original security margins if needed.</p>
+<p>Similarly, Bitcoin’s use of SHA-256d (double-SHA-256) in Merkle trees
+and TXID computation is not meaningfully threatened by Grover’s —
+128-bit post-quantum security is generally considered acceptable for
+these use cases.</p>
+<p><strong>Bottom line on threat asymmetry:</strong> The ECDSA/Shor
+threat is qualitatively different from the SHA-256/Grover threat. The
+former enables <em>theft</em>; the latter at worst enables <em>faster
+mining</em>. All serious discussion of Bitcoin’s quantum vulnerability
+focuses on ECDSA.</p>
+<h3 id="realistic-timeline">1.3 Realistic Timeline</h3>
+<p>Honest assessment of the timeline requires separating marketing from
+physics. As of early 2026:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 50%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>System</th>
+<th>Physical Qubits</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google Willow</td>
+<td>105</td>
+<td>Meaningful error correction progress, nowhere near cryptographic
+scale</td>
+</tr>
+<tr>
+<td>Microsoft Majorana 1</td>
+<td>Early-stage</td>
+<td>Topological architecture with theoretical fidelity advantages</td>
+</tr>
+<tr>
+<td>IBM Nighthawk</td>
+<td>~120</td>
+<td>Incremental improvements</td>
+</tr>
+<tr>
+<td><strong>Required for ECDSA break</strong></td>
+<td><strong>~900,000+</strong></td>
+<td><strong>~8,500× current state of the art</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The authoritative analysis from a16z Crypto (December 2025)
+concludes: <em>“A cryptographically relevant quantum computer (CRQC) in
+the 2020s is highly unlikely… The gap between demonstrating that quantum
+error correction works in principle, and achieving the scale needed for
+cryptanalysis, remains vast.”</em></p>
+<p>However, 80 experts at the <strong>July 2025 Presidio Bitcoin Quantum
+Summit</strong> assessed that a CRQC capable of breaking Bitcoin’s ECDSA
+could emerge within <strong>5–10 years</strong> — a 2030–2035 window.
+This aligns with cautious mainstream projections.</p>
+<p>The operationally important implication: given the time required to
+design, test, and deploy a protocol-level cryptographic upgrade to
+Bitcoin (historically 2–4+ years from proposal to activation),
+<strong>work must begin well before a CRQC exists.</strong></p>
+<hr />
+<h2 id="current-efforts-underway">2. Current Efforts Underway</h2>
+<h3 id="bip-360-qubit-pay-to-quantum-resistant-hash">2.1 BIP 360 — QuBit
+(Pay-to-Quantum-Resistant-Hash)</h3>
+<p>The most significant concrete proposal to date is <strong>BIP
+360</strong>, nicknamed “QuBit,” authored by Hunter Beast. It was
+formally merged into the Bitcoin BIP GitHub repository in
+<strong>February 2026</strong> — a notable milestone, though merging a
+BIP does not imply adoption or even consensus, only that the proposal
+meets basic formatting and clarity standards for discussion.</p>
+<p>BIP 360 proposes a new output type tentatively called
+<strong>Pay-to-Merkle-Root (P2MR)</strong>. The design philosophy
+mirrors Taproot’s structure — a Merkle tree of spending conditions — but
+replaces the secp256k1 internal key with a quantum-resistant commitment.
+Key properties:</p>
+<ul>
+<li><strong>Public keys are never exposed until spending</strong>,
+protecting unspent outputs</li>
+<li><strong>Backward-compatible as a soft fork</strong> (new output type
+with WITNESS_VERSION)</li>
+<li><strong>Designed for gradual migration</strong> — users opt in by
+moving funds to new address type</li>
+<li><strong>Supports FALCON-1024</strong> as the primary signature
+scheme, with accommodations for SPHINCS+ and ML-Kyber-based
+constructions</li>
+</ul>
+<h3 id="qramp-quantum-resistant-address-migration-protocol">2.2 QRAMP —
+Quantum-Resistant Address Migration Protocol</h3>
+<p>Proposed in 2025, <strong>QRAMP</strong> is a more aggressive
+companion proposal addressing the <em>existing</em> exposed-key problem.
+It would establish a <strong>mandatory migration deadline</strong>:
+after a defined sunset block height, coins in quantum-vulnerable address
+formats (P2PK, reused P2PKH) would be unspendable or would require
+spending to a quantum-resistant address.</p>
+<p>This is extraordinarily controversial (see Section 4).</p>
+<h3 id="bip-qshield">2.3 BIP-QShield</h3>
+<p>Drafted in July 2025, <strong>BIP-QShield</strong> takes the most
+radical position: permanently <em>exclude</em> coins in
+quantum-vulnerable addresses from on-chain transactions. This would
+effectively <strong>freeze Satoshi’s coins</strong> and ~6.5 million
+other exposed BTC. It remains highly contentious and has not received
+meaningful technical traction.</p>
+<h3 id="bitcoin-dev-mailing-list-activity">2.4 Bitcoin Dev Mailing List
+Activity</h3>
+<p>2025 saw a significant uptick in quantum-related discussion on the
+Bitcoin-dev mailing list:</p>
+<ul>
+<li><strong>Jesse Posner</strong> (Coinbase cryptographer) published
+research showing that HD wallets, silent payments, key aggregation, and
+threshold signature schemes could be compatible with some
+quantum-resistant signature algorithms</li>
+<li><strong>Jameson Lopp</strong> (CasaHODL) proposed a concrete
+sequence of soft forks deployable <em>before</em> a CRQC arrives,
+gradually tightening quantum-vulnerable spend rules</li>
+<li><strong>Augustin Cruz</strong> proposed a BIP to proactively destroy
+quantum-vulnerable coins</li>
+<li><strong>BTQ Technologies</strong> (October 2025) announced a working
+implementation of Bitcoin using NIST-standardized ML-DSA (formerly
+CRYSTALS-Dilithium, now FIPS 204) replacing ECDSA, demonstrating
+feasibility at the node level</li>
+</ul>
+<h3 id="the-presidio-bitcoin-quantum-summit">2.5 The Presidio Bitcoin
+Quantum Summit</h3>
+<p>The <strong>July 2025 Presidio Bitcoin Quantum Summit</strong>
+brought together 80 researchers and practitioners in the first major
+dedicated forum on the topic. The Human Rights Foundation funded
+original research quantifying the exposure of ~6.51 million BTC. A
+ScienceDirect survey published November 2025 provides the most
+comprehensive academic treatment to date.</p>
+<hr />
+<h2 id="candidate-post-quantum-cryptographic-schemes">3. Candidate
+Post-Quantum Cryptographic Schemes</h2>
+<p>NIST completed its first post-quantum standardization round in 2024,
+producing three signature standards relevant to Bitcoin:</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 20%" />
+<col style="width: 8%" />
+<col style="width: 21%" />
+<col style="width: 24%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>NIST Standard</th>
+<th>Type</th>
+<th>Signature Size</th>
+<th>Public Key Size</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ML-DSA (Dilithium)</strong></td>
+<td>FIPS 204</td>
+<td>Lattice (Module-LWE)</td>
+<td>2,420–4,595 bytes</td>
+<td>1,312–2,592 bytes</td>
+<td>Simplest to implement correctly</td>
+</tr>
+<tr>
+<td><strong>FN-DSA (FALCON)</strong></td>
+<td>FIPS 206</td>
+<td>Lattice (NTRU)</td>
+<td>666–1,280 bytes</td>
+<td>897–1,793 bytes</td>
+<td>Best size profile; complex signing</td>
+</tr>
+<tr>
+<td><strong>SLH-DSA (SPHINCS+)</strong></td>
+<td>FIPS 205</td>
+<td>Hash-based</td>
+<td>7,856–49,856 bytes</td>
+<td>32–64 bytes</td>
+<td>Conservative (hash-only security)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Compare with Bitcoin’s current ECDSA:</strong> ~71-byte
+signature, 33-byte compressed public key.</p>
+<h3 id="tradeoffs-for-bitcoin">3.1 Tradeoffs for Bitcoin</h3>
+<p><strong>FALCON-1024 (FN-DSA)</strong> is the leading candidate for
+Bitcoin integration, specifically cited in BIP 360. At ~1,280-byte
+signatures with 1,793-byte public keys, it has the best size profile
+among lattice schemes. The catch: FALCON requires Gaussian sampling
+during signing, which is notoriously difficult to implement in constant
+time without subtle timing side-channels. This implementation complexity
+is a serious concern for a security-critical application.</p>
+<p><strong>ML-DSA (Dilithium)</strong> is simpler to implement correctly
+and is the primary NIST recommendation for general use, but its
+~2,420-byte signatures would roughly <strong>30× the per-transaction
+signature data</strong>. At current Bitcoin transaction throughput, this
+translates directly to blockchain bloat — a soft-fork-only upgrade would
+need to accommodate this within existing block weight limits, severely
+constraining transaction throughput.</p>
+<p><strong>SPHINCS+ (SLH-DSA)</strong> has the advantage of being purely
+hash-based — its security relies only on the collision resistance of
+SHA-256 or similar, making it conservative against any future lattice
+cryptanalysis breakthroughs. However, at 7,856–49,856 bytes per
+signature, it’s effectively unusable for routine Bitcoin transactions
+without dramatic block size increases.</p>
+<p><strong>ML-KEM (Kyber)</strong> — the NIST KEM standard (FIPS 203) —
+is not directly applicable to Bitcoin’s signature use case but is
+relevant for off-chain channel establishment (Lightning Network) and
+encrypted wallet communications.</p>
+<h3 id="hybrid-approaches">3.2 Hybrid Approaches</h3>
+<p>A September 2025 preprint (“Hybrid Post-Quantum Signatures for
+Bitcoin and Ethereum”) proposes signing transactions with <em>both</em>
+ECDSA and a PQC scheme during a transitional period. This provides
+security against either classical <em>or</em> quantum attackers, at the
+cost of double the signature overhead. The paper notes this imposes
+“immediate, severe costs with no tangible benefits” until a CRQC
+actually exists — framing it as a “defensive downgrade.”</p>
+<h3 id="block-weight-implications">3.3 Block Weight Implications</h3>
+<p>FALCON-1024 signatures are ~18× larger than ECDSA signatures. In a
+standard 1-input, 1-output transaction, this balloons the transaction
+from ~250 bytes to roughly 3,500+ bytes. Bitcoin’s current 4 million
+weight-unit block limit would mean roughly <strong>1/18th the
+transaction throughput</strong> for PQC-only blocks.</p>
+<p>Accommodating PQC signatures likely requires either: 1. A
+<strong>block weight increase</strong> (contentious — echoes of the
+block size wars) 2. <strong>Signature aggregation</strong> schemes that
+amortize PQC signature size across multiple inputs 3. <strong>Off-chain
+solutions</strong> (Lightning) handling most transactions, with on-chain
+serving only as settlement layer</p>
+<hr />
+<h2 id="bitcoin-politics-the-hardest-part">4. Bitcoin Politics: The
+Hardest Part</h2>
+<p>Technical solutions exist. The politics are where this gets
+difficult.</p>
+<h3 id="the-property-rights-question">4.1 The Property Rights
+Question</h3>
+<p>QRAMP and BIP-QShield propose, in different ways, restricting or
+freezing coins in quantum-vulnerable addresses. This raises a
+fundamental question that has no technical answer:</p>
+<p><strong>Does the Bitcoin network have the right to render someone’s
+coins unspendable?</strong></p>
+<p>Arguments for migration deadlines: - Without action, a quantum
+attacker could steal millions of BTC, crashing the network’s value for
+everyone - A mandatory migration protects the <em>ecosystem</em>, not
+just individual holders - Coins in lost wallets (including Satoshi’s)
+are already effectively unspendable; formally freezing them changes
+nothing practically</p>
+<p>Arguments against: - Bitcoin’s core value proposition is
+<strong>censorship-resistant, permissionless money</strong>. Freezing
+anyone’s coins — for any reason — violates this principle. - Some
+holders may be unable to migrate (lost keys to multisig setups, legal
+holds, deceased holders’ estates) - Setting a precedent for “the network
+can freeze your coins” opens the door to future politically-motivated
+freezes - <strong>Jameson Lopp’s position</strong>: Better to let a
+quantum attacker claim Satoshi’s coins than to set the precedent that
+the network can freeze coins</p>
+<h3 id="soft-fork-vs.-hard-fork">4.2 Soft Fork vs. Hard Fork</h3>
+<p>BIP 360 is designed as a <strong>soft fork</strong> —
+backward-compatible, new output type, voluntary migration. This is the
+path of least political resistance and mirrors the Taproot playbook.</p>
+<p>A hard fork would be required for: - Mandatory migration (QRAMP at
+its most aggressive) - Block weight increases to accommodate PQC
+signature sizes - Changes to the mining algorithm (replacing
+SHA-256)</p>
+<p>Given Bitcoin’s governance culture, <strong>a hard fork for quantum
+resistance is extremely unlikely</strong> absent an imminent,
+demonstrated threat. The community will almost certainly pursue soft
+fork approaches until forced to do otherwise.</p>
+<h3 id="the-urgency-debate">4.3 The Urgency Debate</h3>
+<p><strong>“Act now” camp:</strong> The upgrade cycle for Bitcoin
+consensus changes is 2–4+ years from proposal to activation. If a CRQC
+arrives in 2030, protocol work should have been done by 2026–2028. BIP
+360’s merge is a step, but activation requires years of review, testing,
+and signaling. Every year of delay compresses the timeline.</p>
+<p><strong>“Don’t rush” camp:</strong> Premature standardization risks
+picking the wrong PQC algorithm. NIST’s standards are new (2024);
+lattice-based schemes haven’t been battle-tested at scale. A hasty
+upgrade could introduce new vulnerabilities (e.g., FALCON’s timing
+side-channels) worse than the theoretical quantum threat. Bitcoin’s
+conservatism is a feature, not a bug.</p>
+<p><strong>“It’s overhyped” camp:</strong> Current quantum hardware is
+~8,500× away from cryptographic relevance. Moore’s Law doesn’t apply to
+qubit scaling (the challenges are physical, not lithographic). A 2035
+CRQC is possible; a 2030 CRQC is marketing. There’s time to get this
+right.</p>
+<h3 id="current-consensus-or-lack-thereof">4.4 Current Consensus (or
+Lack Thereof)</h3>
+<p>There is no consensus. The community is in the “awareness and early
+research” phase: - BIP 360 is merged but has not entered the activation
+discussion - No miner signaling, no flag day proposals, no reference
+implementation in Bitcoin Core - Most Bitcoin Core developers treat
+quantum resistance as “important but not urgent” - The loudest debates
+are about property rights (what to do with exposed coins), not
+algorithms</p>
+<hr />
+<h2 id="other-cryptocurrencies-lessons-for-bitcoin">5. Other
+Cryptocurrencies: Lessons for Bitcoin</h2>
+<h3 id="ethereum">5.1 Ethereum</h3>
+<p>Vitalik Buterin has been vocal about quantum preparedness. Ethereum’s
+roadmap includes: - Account abstraction (EIP-4337) enabling wallets to
+swap signature schemes without protocol changes - Research into
+STARK-based signature verification (hash-based, quantum-resistant) -
+Ethereum’s faster upgrade cadence means it can likely deploy PQC faster
+than Bitcoin</p>
+<h3 id="algorand">5.2 Algorand</h3>
+<p>Already uses Falcon-based signatures in its state proof protocol.
+Closest to a production PQC deployment among major chains.</p>
+<h3 id="qrl-quantum-resistant-ledger">5.3 QRL (Quantum Resistant
+Ledger)</h3>
+<p>Purpose-built quantum-resistant chain using XMSS (hash-based
+signatures). Small ecosystem but proves the concept works. Demonstrates
+the performance tradeoffs: larger transactions, slower verification.</p>
+<h3 id="solana">5.4 Solana</h3>
+<p>No public quantum resistance roadmap. Solana’s Ed25519 signatures
+have the same Shor vulnerability as Bitcoin’s ECDSA. Higher transaction
+throughput means larger absolute impact from PQC signature bloat.</p>
+<h3 id="lessons-for-bitcoin">5.5 Lessons for Bitcoin</h3>
+<ol type="1">
+<li><strong>Account abstraction helps</strong> — Ethereum’s ability to
+swap signature schemes per-account is a significant architectural
+advantage Bitcoin lacks</li>
+<li><strong>Hash-based signatures work but are expensive</strong> — QRL
+proves feasibility, also proves the performance cost is real</li>
+<li><strong>First movers bear the risk</strong> — Algorand chose FALCON
+early; if FALCON is broken, they’re exposed. Bitcoin’s conservatism may
+pay off.</li>
+</ol>
+<hr />
+<h2 id="assessment-and-recommendations">6. Assessment and
+Recommendations</h2>
+<h3 id="how-urgent-is-this-really">6.1 How Urgent Is This Really?</h3>
+<p><strong>Medium urgency, high importance.</strong> The threat is not
+imminent (no CRQC exists or is close), but the remediation timeline is
+long (2–4+ years for a Bitcoin consensus change). The window for
+comfortable preparation is approximately <strong>2026–2030</strong>.
+After 2030, the timeline compresses uncomfortably.</p>
+<p>The real risk is not a sudden quantum computer appearing overnight —
+it’s the <strong>gradual erosion of confidence</strong>. As quantum
+hardware improves, even pre-CRQC milestones (breaking smaller elliptic
+curves, demonstrating Shor’s on toy problems at scale) could trigger
+market panic and a rush to migrate that the network isn’t prepared
+for.</p>
+<h3 id="what-should-a-bitcoin-holder-do-today">6.2 What Should a Bitcoin
+Holder Do Today?</h3>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 31%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Action</th>
+<th>Urgency</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Never reuse addresses</strong></td>
+<td>Do now</td>
+<td>Easy — most modern wallets do this by default</td>
+</tr>
+<tr>
+<td><strong>Use Taproot (P2TR) addresses</strong></td>
+<td>Do now</td>
+<td>Easy — public key only exposed at spend time</td>
+</tr>
+<tr>
+<td><strong>Move coins from P2PK addresses</strong></td>
+<td>Soon</td>
+<td>Medium — requires access to old keys</td>
+</tr>
+<tr>
+<td><strong>Avoid leaving large amounts in exposed
+addresses</strong></td>
+<td>Soon</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>Monitor BIP 360 progress</strong></td>
+<td>Ongoing</td>
+<td>None — just stay informed</td>
+</tr>
+<tr>
+<td><strong>Consider cold storage for long-term holdings</strong></td>
+<td>Ongoing</td>
+<td>Easy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do NOT:</strong> Panic, sell, or move to altchains claiming
+quantum resistance. The timeline is measured in years, not months.</p>
+<h3 id="most-likely-path-forward">6.3 Most Likely Path Forward</h3>
+<ol type="1">
+<li><strong>2026–2027:</strong> BIP 360 undergoes technical review.
+Reference implementation developed. Community debate intensifies around
+the exposed-coins question.</li>
+<li><strong>2027–2028:</strong> Testnet deployment. Wallet developers
+begin adding P2QRH/P2MR support. Lightning Network evaluates PQC for
+channel establishment.</li>
+<li><strong>2028–2029:</strong> Activation debate. Miner signaling.
+Voluntary migration begins for early adopters.</li>
+<li><strong>2029–2030:</strong> Activation. New quantum-resistant
+address type available. Migration campaigns.</li>
+<li><strong>2030+:</strong> Community reckons with the exposed-coins
+question based on quantum hardware progress. Possible sunset rules for
+vulnerable address types.</li>
+</ol>
+<p>This timeline assumes no quantum surprise. A credible demonstration
+of Shor’s algorithm breaking a production-scale elliptic curve would
+compress everything dramatically.</p>
+<hr />
+<h2 id="key-takeaways">Key Takeaways</h2>
+<ol type="1">
+<li><strong>The threat is to signatures (ECDSA), not mining
+(SHA-256).</strong> Quantum computing enables theft, not faster
+mining.</li>
+<li><strong>~6.5 million BTC is already exposed.</strong> These coins’
+public keys are visible on-chain and attackable offline whenever a CRQC
+arrives.</li>
+<li><strong>FALCON-1024 is the leading candidate</strong>, but signature
+sizes are 18× larger than ECDSA, creating real throughput concerns.</li>
+<li><strong>BIP 360 exists and was merged in February 2026</strong>, but
+activation is years away.</li>
+<li><strong>The hardest problem is political, not technical</strong>:
+what to do with Satoshi’s coins and other exposed addresses.</li>
+<li><strong>The preparation window is approximately 2026–2030.</strong>
+After that, timelines compress uncomfortably.</li>
+<li><strong>For individual holders: don’t reuse addresses, use Taproot,
+and stay informed.</strong> There’s no need to panic.</li>
+</ol>
+<hr />
+<h2 id="references-and-further-reading">References and Further
+Reading</h2>
+<ul>
+<li><strong>BIP 360 (QuBit):</strong> github.com/bitcoin/bips (merged
+February 2026)</li>
+<li><strong>Presidio Bitcoin Quantum Summit:</strong> July 2025, 80
+experts</li>
+<li><strong>Human Rights Foundation:</strong> Quantum vulnerability
+exposure analysis (~6.51M BTC)</li>
+<li><strong>a16z Crypto:</strong> “Quantum Computing and Cryptocurrency”
+(December 2025)</li>
+<li><strong>NIST PQC Standards:</strong> FIPS 203 (ML-KEM), FIPS 204
+(ML-DSA), FIPS 205 (SLH-DSA), FIPS 206 (FN-DSA)</li>
+<li><strong>ScienceDirect Survey:</strong> “Navigating the quantum
+computing threat landscape for blockchains” (November 2025)</li>
+<li><strong>Google Willow:</strong> 105-qubit chip with error correction
+milestone (2025)</li>
+<li><strong>BTQ Technologies:</strong> ML-DSA Bitcoin node
+implementation (October 2025)</li>
+<li><strong>“The Pinnacle Architecture”:</strong> Preprint suggesting
+sub-100K physical qubit ECDSA break (2026, unverified)</li>
+</ul>
+<hr />
+<h2 id="changelog">Changelog</h2>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Update</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-03-05</td>
+<td>Initial report</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>This report is intended for informational purposes only and does
+not constitute investment or security advice. The field is evolving
+rapidly; verify claims against primary sources.</em></p>
+</body>
+</html>
